@@ -1,4 +1,4 @@
-#ParlayPal
+# ParlayPal
 
 ParlayPal is an innovative application designed to enhance the betting experience for football enthusiasts. By aggregating real-time betting information and leveraging statistical analysis, ParlayPal provides users with informed parlay suggestions for player props.
 
