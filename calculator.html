@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bet Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="calculator.html" class="nav-link">Calculator</a>
+    <a href="info.html" class="nav-link">Info</a>
+  </nav>
+
+  <h1>Betting Calculator</h1>
+
+  <div class="section">
+    <label>Odds (American): <input type="number" id="odds" oninput="updateProbabilityFromOdds()"></label><br>
+    <label>Probability (%): <input type="number" id="probability" oninput="updateOddsFromProbability()"></label><br>
+    <label>Wager ($): <input type="number" id="wager"></label><br>
+    <button onclick="calculate()">Calculate</button>
+  
+    <div id="results" style="margin-top: 1rem;"></div>
+  </div>
+  
+
+  <script>
+    function calculateImpliedProbability(odds) {
+      if (odds > 0) {
+        return (100 / (odds + 100)) * 100;
+      } else {
+        return (Math.abs(odds) / (Math.abs(odds) + 100)) * 100;
+      }
+    }
+  
+    function calculateAmericanOdds(probability) {
+      if (probability >= 50) {
+        return -((probability / (100 - probability)) * 100).toFixed(0);
+      } else {
+        return ((100 - probability) / probability * 100).toFixed(0);
+      }
+    }
+  
+    function updateProbabilityFromOdds() {
+      const odds = parseFloat(document.getElementById("odds").value);
+      if (!isNaN(odds)) {
+        const prob = calculateImpliedProbability(odds).toFixed(2);
+        document.getElementById("probability").value = prob;
+      }
+    }
+  
+    function updateOddsFromProbability() {
+      const prob = parseFloat(document.getElementById("probability").value);
+      if (!isNaN(prob) && prob > 0 && prob < 100) {
+        const odds = calculateAmericanOdds(prob);
+        document.getElementById("odds").value = odds;
+      }
+    }
+  
+    function calculate() {
+      const odds = parseFloat(document.getElementById("odds").value);
+      const wager = parseFloat(document.getElementById("wager").value);
+      const prob = parseFloat(document.getElementById("probability").value);
+  
+      if (isNaN(odds) || isNaN(wager) || isNaN(prob)) return;
+  
+      let payout = 0;
+      if (odds > 0) {
+        payout = wager * (odds / 100);
+      } else {
+        payout = wager * (100 / Math.abs(odds));
+      }
+  
+      const expectedValue = ((payout * (prob / 100)) - (wager * (1 - (prob / 100)))).toFixed(2);
+  
+      document.getElementById("results").innerHTML = `
+        <p><strong>Profit if it hits:</strong> $${payout.toFixed(2)}</p>
+        <p><strong>Expected Value (EV):</strong> $${expectedValue}</p>
+      `;
+    }
+  </script>  
+</body>
+</html>
