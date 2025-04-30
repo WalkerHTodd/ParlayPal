@@ -19,8 +19,9 @@ for idx, player in enumerate(players_data):
     full_name = player.get("fullName")
     position = None
     team_abbr = None
+    status = None
 
-    # Fetch detailed info for team and position
+    # Fetch detailed info for team, position, and status
     detail_url = f"https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/{player_id}"
     detail_resp = requests.get(detail_url)
 
@@ -45,21 +46,28 @@ for idx, player in enumerate(players_data):
         except:
             pass
 
+        try:
+            if "status" in detail_data:
+                status = detail_data["status"].get("name")  # Example: "Active", "Inactive", "Free Agent"
+        except:
+            pass
+
     player_list.append({
         "id": player_id,
         "fullName": full_name,
         "team": team_abbr,
-        "position": position
+        "position": position,
+        "status": status
     })
 
     if idx % 50 == 0:
         print(f"✅ Processed {idx} players...")
 
-    # time.sleep(0.25)  # optional: slow down a bit so we don't hammer the API
+    # Optional: time.sleep(0.2)  # slow down if you get rate-limited (not strictly needed unless ESPN blocks)
 
 # Save to CSV
 df = pd.DataFrame(player_list)
-df = df.dropna(subset=["team"])  # Only keep players with real MLB teams
+df = df.dropna(subset=["team"])  # Only keep players who have a team
 df.to_csv("espn_mlb_players_full.csv", index=False)
 
-print("✅ Full list complete: saved to espn_mlb_players_full.csv")
+print(f"✅ Full player list complete — saved {len(df)} players to espn_mlb_players_full.csv!")
